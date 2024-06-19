@@ -51,4 +51,3 @@ public class BotonInteractivo : MonoBehaviour
         rend.material.color = colorOriginal;
     }
 }
-
