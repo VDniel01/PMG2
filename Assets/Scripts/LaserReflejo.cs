@@ -1,3 +1,5 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class LaserReflejo : MonoBehaviour
@@ -11,7 +13,8 @@ public class LaserReflejo : MonoBehaviour
     [SerializeField]
     private Color laserColor = Color.red;  // Color del láser, por defecto rojo
 
-    private GameObject lastButtonHit;  // Último objeto con el que colisionó que tenía el tag "boton"
+    private GameObject botonObjeto;  // Referencia al objeto con el tag "boton"
+    private BotonInteractivo botonScript;  // Referencia al script BotonInteractivo del botón
 
     void Start()
     {
@@ -22,6 +25,13 @@ public class LaserReflejo : MonoBehaviour
         // Cambiar el color del material del LineRenderer
         lr.material = new Material(Shader.Find("Unlit/Color"));
         lr.material.color = laserColor;
+
+        // Buscar el objeto con el tag "boton" y obtener su script BotonInteractivo
+        botonObjeto = GameObject.FindGameObjectWithTag("boton");
+        if (botonObjeto != null)
+        {
+            botonScript = botonObjeto.GetComponent<BotonInteractivo>();
+        }
     }
 
     void Update()
@@ -34,6 +44,9 @@ public class LaserReflejo : MonoBehaviour
         lr.positionCount = 1;  // Reinicia el número de posiciones a 1 para empezar de nuevo
         lr.SetPosition(0, startPoint.position);
 
+        // Variable para almacenar si el láser está tocando el botón actualmente
+        bool tocandoBoton = false;
+
         for (int i = 0; i < maxBounces; i++)
         {
             Ray ray = new Ray(position, direction);
@@ -43,21 +56,21 @@ public class LaserReflejo : MonoBehaviour
             {
                 position = hit.point;
 
+                // Verificar si el láser toca el objeto con el tag "boton"
+                if (hit.transform.CompareTag("boton") && botonScript != null)
+                {
+                    tocandoBoton = true;
+
+                    // Cambiar color del botón y activar el trigger
+                    botonScript.ActivarDesactivarTrigger(true);
+                    botonScript.CambiarColorActivo();
+                }
+
                 if (hit.transform.CompareTag("Mirror") || !reflectOnlyMirror)
                 {
                     direction = Vector3.Reflect(direction, hit.normal);
                     lr.positionCount = i + 2;  // Incrementa el número de posiciones según los rebotes
                     lr.SetPosition(i + 1, hit.point);
-
-                    // Si el objeto tocado tiene el tag "boton"
-                    if (hit.transform.CompareTag("boton"))
-                    {
-                        // Guarda una referencia al objeto boton
-                        lastButtonHit = hit.transform.gameObject;
-
-                        // Cambia el color y activa el trigger del otro objeto
-                        CambiarColorActivarTriggerOtroObjeto(true);
-                    }
                 }
                 else
                 {
@@ -75,53 +88,12 @@ public class LaserReflejo : MonoBehaviour
                 break;
             }
         }
-    }
 
-    void OnTriggerEnter(Collider other)
-    {
-        // Si entra en contacto con un objeto con tag "boton"
-        if (other.CompareTag("boton"))
+        // Si no está tocando el botón, desactivar el trigger y restablecer el color original
+        if (!tocandoBoton && botonScript != null)
         {
-            lastButtonHit = other.gameObject;
-
-            // Cambia el color y activa el trigger del otro objeto
-            CambiarColorActivarTriggerOtroObjeto(true);
-        }
-    }
-
-    void OnTriggerExit(Collider other)
-    {
-        // Si sale del contacto con el objeto con tag "boton"
-        if (other.CompareTag("boton") && other.gameObject == lastButtonHit)
-        {
-            // Revierte los cambios (vuelve al color original y desactiva el trigger)
-            CambiarColorActivarTriggerOtroObjeto(false);
-            lastButtonHit = null;
-        }
-    }
-
-    void CambiarColorActivarTriggerOtroObjeto(bool activate)
-    {
-        // Encuentra el otro objeto que deseas cambiar y activar su trigger
-        // Aquí debes especificar cómo obtienes o encuentras ese otro objeto
-        // Supongamos que el objeto se encuentra a través de una referencia directa en el script
-        GameObject otroObjeto = GameObject.Find("NombreDelOtroObjeto"); // Cambia por el nombre correcto o referencia directa
-
-        if (otroObjeto != null)
-        {
-            Renderer rend = otroObjeto.GetComponent<Renderer>();
-            if (rend != null)
-            {
-                // Cambia el color del material del otro objeto
-                rend.material.color = activate ? Color.green : Color.white;
-
-                // Activa o desactiva el trigger del otro objeto (asumiendo que tiene un componente Collider con IsTrigger)
-                Collider triggerCollider = otroObjeto.GetComponent<Collider>();
-                if (triggerCollider != null)
-                {
-                    triggerCollider.isTrigger = activate;
-                }
-            }
+            botonScript.ActivarDesactivarTrigger(false);
+            botonScript.RestaurarColorOriginal();
         }
     }
 }

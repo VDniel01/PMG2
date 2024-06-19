@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class BotonInteractivo : MonoBehaviour
 {
-    public GameObject objetoAActivar;  // Objeto que se activará/desactivará
+    public GameObject objetoAActivar;  // Objeto cuyo trigger se activará/desactivará
     public Color colorActivo = Color.green;  // Color cuando el botón está activo
     private Color colorOriginal;  // Color original del botón
 
@@ -16,35 +16,12 @@ public class BotonInteractivo : MonoBehaviour
         colorOriginal = rend.material.color;
     }
 
-    void OnTriggerEnter(Collider other)
+    public void CambiarColorActivo()
     {
-        if (other.CompareTag("Laser"))
-        {
-            // Cambiar color y activar el objeto
-            rend.material.color = colorActivo;
-
-            if (objetoAActivar != null)
-            {
-                ActivarDesactivarTrigger(true);
-            }
-        }
+        rend.material.color = colorActivo;
     }
 
-    void OnTriggerExit(Collider other)
-    {
-        if (other.CompareTag("Laser"))
-        {
-            // Revertir color y desactivar el objeto
-            rend.material.color = colorOriginal;
-
-            if (objetoAActivar != null)
-            {
-                ActivarDesactivarTrigger(false);
-            }
-        }
-    }
-
-    void ActivarDesactivarTrigger(bool activar)
+    public void ActivarDesactivarTrigger(bool activar)
     {
         // Activar o desactivar el trigger del objeto especificado
         Collider triggerCollider = objetoAActivar.GetComponent<Collider>();
@@ -53,4 +30,11 @@ public class BotonInteractivo : MonoBehaviour
             triggerCollider.isTrigger = activar;
         }
     }
+
+    public void RestaurarColorOriginal()
+    {
+        // Restablecer el color original del botón
+        rend.material.color = colorOriginal;
+    }
 }
+
