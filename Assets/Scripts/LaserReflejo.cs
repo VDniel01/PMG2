@@ -13,9 +13,9 @@ public class LaserReflejo : MonoBehaviour
     [SerializeField]
     private Color laserColor = Color.red;  // Color del láser, por defecto rojo
 
-    private GameObject botonObjeto;  // Referencia al objeto con el tag "boton"
-    private BotonInteractivo botonScript;  // Referencia al script BotonInteractivo del botón
-    private bool tocandoBoton;  // Variable para almacenar si el láser está tocando el botón actualmente
+    private GameObject botonObjeto;  
+    private BotonInteractivo botonScript;  
+    private bool tocandoBoton;  
 
     void Start()
     {
