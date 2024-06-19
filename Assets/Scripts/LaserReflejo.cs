@@ -15,6 +15,7 @@ public class LaserReflejo : MonoBehaviour
 
     private GameObject botonObjeto;  // Referencia al objeto con el tag "boton"
     private BotonInteractivo botonScript;  // Referencia al script BotonInteractivo del botón
+    private bool tocandoBoton;  // Variable para almacenar si el láser está tocando el botón actualmente
 
     void Start()
     {
@@ -32,20 +33,29 @@ public class LaserReflejo : MonoBehaviour
         {
             botonScript = botonObjeto.GetComponent<BotonInteractivo>();
         }
+
+        tocandoBoton = false;  // Inicializar la variable tocandoBoton
     }
 
     void Update()
     {
+        // Castear el láser cada frame
         CastLaser(startPoint.position, -startPoint.forward);
+
+        // Restaurar color original del botón si ya no está tocando
+        if (!tocandoBoton && botonScript != null)
+        {
+            botonScript.RestaurarColorOriginal();  // Asumiendo que has implementado este método en BotonInteractivo.cs
+            botonScript.ActivarDesactivarTrigger(false);
+        }
+
+        tocandoBoton = false;  // Reiniciar la variable tocandoBoton al inicio de cada frame
     }
 
     void CastLaser(Vector3 position, Vector3 direction)
     {
         lr.positionCount = 1;  // Reinicia el número de posiciones a 1 para empezar de nuevo
         lr.SetPosition(0, startPoint.position);
-
-        // Variable para almacenar si el láser está tocando el botón actualmente
-        bool tocandoBoton = false;
 
         for (int i = 0; i < maxBounces; i++)
         {
@@ -61,9 +71,9 @@ public class LaserReflejo : MonoBehaviour
                 {
                     tocandoBoton = true;
 
-                    // Cambiar color del botón y activar el trigger
-                    botonScript.ActivarDesactivarTrigger(true);
+                    // Cambiar color del botón y activar el trigger del objeto asociado
                     botonScript.CambiarColorActivo();
+                    botonScript.ActivarDesactivarTrigger(true);
                 }
 
                 if (hit.transform.CompareTag("Mirror") || !reflectOnlyMirror)
@@ -88,12 +98,6 @@ public class LaserReflejo : MonoBehaviour
                 break;
             }
         }
-
-        // Si no está tocando el botón, desactivar el trigger y restablecer el color original
-        if (!tocandoBoton && botonScript != null)
-        {
-            botonScript.ActivarDesactivarTrigger(false);
-            botonScript.RestaurarColorOriginal();
-        }
     }
 }
+
