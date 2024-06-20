@@ -6,6 +6,8 @@ TagManager:
   tags:
   - Mirror
   - boton
+  - recuperarHP
+  - DeadlyObject
   layers:
   - Default
   - TransparentFX
