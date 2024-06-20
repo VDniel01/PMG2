@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class LaserReflejo : MonoBehaviour
 {
-    int maxBounces = 5;  
+    int maxBounces = 5;
     private LineRenderer lr;
     [SerializeField]
     private Transform startPoint;  // Punto de inicio del láser
@@ -13,9 +13,9 @@ public class LaserReflejo : MonoBehaviour
     [SerializeField]
     private Color laserColor = Color.red;  // Color del láser, por defecto rojo
 
-    private GameObject botonObjeto;  
-    private BotonInteractivo botonScript;  
-    private bool tocandoBoton;  
+    private List<GameObject> botonesObjetos;
+    private List<BotonInteractivo> botonesScripts;
+    private List<bool> tocandoBotones;
 
     void Start()
     {
@@ -27,14 +27,20 @@ public class LaserReflejo : MonoBehaviour
         lr.material = new Material(Shader.Find("Unlit/Color"));
         lr.material.color = laserColor;
 
-        // Buscar el objeto con el tag "boton" y obtener su script BotonInteractivo
-        botonObjeto = GameObject.FindGameObjectWithTag("boton");
-        if (botonObjeto != null)
-        {
-            botonScript = botonObjeto.GetComponent<BotonInteractivo>();
-        }
+        // Buscar todos los objetos con el tag "boton" y obtener sus scripts BotonInteractivo
+        botonesObjetos = new List<GameObject>(GameObject.FindGameObjectsWithTag("boton"));
+        botonesScripts = new List<BotonInteractivo>();
+        tocandoBotones = new List<bool>();
 
-        tocandoBoton = false;  // Inicializar la variable tocandoBoton
+        foreach (GameObject boton in botonesObjetos)
+        {
+            BotonInteractivo botonScript = boton.GetComponent<BotonInteractivo>();
+            if (botonScript != null)
+            {
+                botonesScripts.Add(botonScript);
+                tocandoBotones.Add(false);
+            }
+        }
     }
 
     void Update()
@@ -42,14 +48,16 @@ public class LaserReflejo : MonoBehaviour
         // Castear el láser cada frame
         CastLaser(startPoint.position, -startPoint.forward);
 
-        // Restaurar color original del botón si ya no está tocando
-        if (!tocandoBoton && botonScript != null)
+        // Restaurar color original de los botones si ya no están tocando
+        for (int i = 0; i < tocandoBotones.Count; i++)
         {
-            botonScript.RestaurarColorOriginal();  // Asumiendo que has implementado este método en BotonInteractivo.cs
-            botonScript.ActivarDesactivarTrigger(false);
+            if (!tocandoBotones[i] && botonesScripts[i] != null)
+            {
+                botonesScripts[i].RestaurarColorOriginal();
+                botonesScripts[i].ActivarDesactivarTrigger(false);
+            }
+            tocandoBotones[i] = false;  // Reiniciar la variable tocandoBoton al inicio de cada frame
         }
-
-        tocandoBoton = false;  // Reiniciar la variable tocandoBoton al inicio de cada frame
     }
 
     void CastLaser(Vector3 position, Vector3 direction)
@@ -66,14 +74,17 @@ public class LaserReflejo : MonoBehaviour
             {
                 position = hit.point;
 
-                // Verificar si el láser toca el objeto con el tag "boton"
-                if (hit.transform.CompareTag("boton") && botonScript != null)
+                // Verificar si el láser toca algún objeto con el tag "boton"
+                for (int j = 0; j < botonesObjetos.Count; j++)
                 {
-                    tocandoBoton = true;
+                    if (hit.transform == botonesObjetos[j].transform && botonesScripts[j] != null)
+                    {
+                        tocandoBotones[j] = true;
 
-                    // Cambiar color del botón y activar el trigger del objeto asociado
-                    botonScript.CambiarColorActivo();
-                    botonScript.ActivarDesactivarTrigger(true);
+                        // Cambiar color del botón y activar el trigger del objeto asociado
+                        botonesScripts[j].CambiarColorActivo();
+                        botonesScripts[j].ActivarDesactivarTrigger(true);
+                    }
                 }
 
                 if (hit.transform.CompareTag("Mirror") || !reflectOnlyMirror)
@@ -100,4 +111,3 @@ public class LaserReflejo : MonoBehaviour
         }
     }
 }
-

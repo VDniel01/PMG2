@@ -4,22 +4,31 @@ using UnityEngine;
 
 public class BotonInteractivo : MonoBehaviour
 {
-    public GameObject objetoAActivar;  // Objeto cuyo trigger se activará/desactivará
+    public List<GameObject> objetosAActivar;  // Lista de objetos cuyos triggers se activarán/desactivarán
     public Color colorActivo = Color.green;  // Color cuando el botón está activo
     private Color colorOriginal;  // Color original del botón
 
     private Renderer rend;
-    private Renderer objetoRenderer;  // Renderer del objeto asociado al botón
+    private List<Renderer> objetoRenderers;  // Lista de Renderers de los objetos asociados al botón
 
     void Start()
     {
         rend = GetComponent<Renderer>();
         colorOriginal = rend.material.color;
 
-        // Obtener el Renderer del objeto asociado al botón
-        if (objetoAActivar != null)
+        objetoRenderers = new List<Renderer>();
+
+        // Obtener los Renderers de los objetos asociados al botón
+        foreach (GameObject objeto in objetosAActivar)
         {
-            objetoRenderer = objetoAActivar.GetComponent<Renderer>();
+            if (objeto != null)
+            {
+                Renderer objRend = objeto.GetComponent<Renderer>();
+                if (objRend != null)
+                {
+                    objetoRenderers.Add(objRend);
+                }
+            }
         }
     }
 
@@ -31,17 +40,23 @@ public class BotonInteractivo : MonoBehaviour
 
     public void ActivarDesactivarTrigger(bool activar)
     {
-        // Activar o desactivar el trigger del objeto especificado
-        Collider triggerCollider = objetoAActivar.GetComponent<Collider>();
-        if (triggerCollider != null)
+        // Activar o desactivar el trigger de los objetos especificados
+        foreach (GameObject objeto in objetosAActivar)
         {
-            triggerCollider.isTrigger = activar;
+            Collider triggerCollider = objeto.GetComponent<Collider>();
+            if (triggerCollider != null)
+            {
+                triggerCollider.isTrigger = activar;
+            }
         }
 
-        // Cambiar color del objeto asociado al botón según esté activo o no el trigger
-        if (objetoRenderer != null)
+        // Cambiar color de los objetos asociados al botón según estén activos o no los triggers
+        foreach (Renderer objRend in objetoRenderers)
         {
-            objetoRenderer.material.color = activar ? colorActivo : colorOriginal;
+            if (objRend != null)
+            {
+                objRend.material.color = activar ? colorActivo : colorOriginal;
+            }
         }
     }
 
@@ -49,5 +64,14 @@ public class BotonInteractivo : MonoBehaviour
     {
         // Restaurar el color original del botón
         rend.material.color = colorOriginal;
+
+        // Restaurar el color original de los objetos asociados al botón
+        foreach (Renderer objRend in objetoRenderers)
+        {
+            if (objRend != null)
+            {
+                objRend.material.color = colorOriginal;
+            }
+        }
     }
 }
