@@ -12,10 +12,12 @@ public class LaserReflejo : MonoBehaviour
     private bool reflectOnlyMirror;  // Indica si solo debe reflejar en objetos con el tag "Mirror"
     [SerializeField]
     private Color laserColor = Color.red;  // Color del láser, por defecto rojo
+    public float damagePerSecond = 10f; // Daño por segundo del láser
 
     private List<GameObject> botonesObjetos;
     private List<BotonInteractivo> botonesScripts;
     private List<bool> tocandoBotones;
+    private PlayerMovement playerMovement;
 
     void Start()
     {
@@ -41,6 +43,9 @@ public class LaserReflejo : MonoBehaviour
                 tocandoBotones.Add(false);
             }
         }
+
+        // Obtener referencia al script PlayerMovement
+        playerMovement = FindObjectOfType<PlayerMovement>();
     }
 
     void Update()
@@ -85,6 +90,12 @@ public class LaserReflejo : MonoBehaviour
                         botonesScripts[j].CambiarColorActivo();
                         botonesScripts[j].ActivarDesactivarTrigger(true);
                     }
+                }
+
+                // Verificar si el láser toca al jugador para aplicarle daño
+                if (hit.transform.CompareTag("Player") && playerMovement != null)
+                {
+                    playerMovement.TakeDamage(damagePerSecond * Time.deltaTime);
                 }
 
                 if (hit.transform.CompareTag("Mirror") || !reflectOnlyMirror)
