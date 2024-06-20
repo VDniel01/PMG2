@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class LaserReflejo : MonoBehaviour
 {
-    int maxBounces = 5;  // Número máximo de rebotes del láser
+    int maxBounces = 5;  
     private LineRenderer lr;
     [SerializeField]
     private Transform startPoint;  // Punto de inicio del láser
