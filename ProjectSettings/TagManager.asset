@@ -8,6 +8,8 @@ TagManager:
   - boton
   - recuperarHP
   - DeadlyObject
+  - AddTime
+  - Objective
   layers:
   - Default
   - TransparentFX

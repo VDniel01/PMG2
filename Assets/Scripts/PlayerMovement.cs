@@ -6,14 +6,20 @@ using UnityEngine.SceneManagement;
 public class PlayerMovement : MonoBehaviour
 {
     public float speed = 5f;
+    public float jumpForce = 5f;
     public float mouseSensitivity = 100f;
+    public LayerMask groundMask;
     public float maxHealth = 100f;
     public float currentHealth;
     public Canvas gameOverCanvas;
     public float laserDamagePerSecond = 10f; // Daño por segundo del láser
+    public CountdownTimer countdownTimer; // Referencia al contador regresivo
 
+    private Rigidbody rb;
     private Transform cameraTransform;
     private float xRotation = 0f;
+    private bool isGrounded;
+    private Vector3 groundNormal;
     private bool isGameOver = false;
 
     private Vector3 initialPosition; // Posición inicial del jugador
@@ -21,6 +27,7 @@ public class PlayerMovement : MonoBehaviour
 
     void Start()
     {
+        rb = GetComponent<Rigidbody>();
         cameraTransform = Camera.main.transform;
         currentHealth = maxHealth;
 
@@ -45,6 +52,7 @@ public class PlayerMovement : MonoBehaviour
         {
             HandleMovement();
             HandleMouseLook();
+            HandleJump();
             CheckHealthPickup();
         }
     }
@@ -57,7 +65,14 @@ public class PlayerMovement : MonoBehaviour
         Vector3 move = transform.right * moveHorizontal + transform.forward * moveVertical;
         Vector3 velocity = move * speed;
 
-        GetComponent<Rigidbody>().velocity = new Vector3(velocity.x, GetComponent<Rigidbody>().velocity.y, velocity.z);
+        if (isGrounded)
+        {
+            rb.velocity = Vector3.ProjectOnPlane(velocity, groundNormal) + Vector3.up * rb.velocity.y;
+        }
+        else
+        {
+            rb.velocity = new Vector3(velocity.x, rb.velocity.y, velocity.z);
+        }
     }
 
     void HandleMouseLook()
@@ -70,6 +85,36 @@ public class PlayerMovement : MonoBehaviour
 
         cameraTransform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
         transform.Rotate(Vector3.up * mouseX);
+    }
+
+    void HandleJump()
+    {
+        if (Input.GetButtonDown("Jump") && isGrounded)
+        {
+            rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z); // Reinicia la velocidad vertical para evitar saltos dobles inesperados
+            rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+            isGrounded = false; // Desactiva isGrounded para evitar saltos continuos
+        }
+    }
+
+    void FixedUpdate()
+    {
+        CheckGround();
+    }
+
+    void CheckGround()
+    {
+        RaycastHit hit;
+        if (Physics.Raycast(transform.position + Vector3.up * 0.1f, Vector3.down, out hit, 0.3f, groundMask))
+        {
+            isGrounded = true;
+            groundNormal = hit.normal;
+        }
+        else
+        {
+            isGrounded = false;
+            groundNormal = Vector3.up; // Asignar Vector3.up por defecto cuando no está en el suelo
+        }
     }
 
     public void TakeDamage(float damage)
@@ -86,10 +131,6 @@ public class PlayerMovement : MonoBehaviour
     {
         isGameOver = true;
         Time.timeScale = 0; // Pausar el juego
-        // Mostrar Game Over y botón para reiniciar
-        Debug.Log("Game Over!");
-
-        // Activar el Canvas de Game Over
         if (gameOverCanvas != null)
         {
             gameOverCanvas.gameObject.SetActive(true);
@@ -130,7 +171,7 @@ public class PlayerMovement : MonoBehaviour
 
     void CheckHealthPickup()
     {
-        if (Input.GetKeyDown(KeyCode.E)) // Cambia la tecla según necesites
+        if (Input.GetKeyDown(KeyCode.E))
         {
             RaycastHit hit;
             if (Physics.Raycast(transform.position, transform.forward, out hit, 3f))
@@ -145,26 +186,35 @@ public class PlayerMovement : MonoBehaviour
 
     void RecuperarSalud(GameObject healthPickup)
     {
-        // Obtener el componente HealthPickup para obtener la cantidad de salud a recuperar
         HealthPickup pickupComponent = healthPickup.GetComponent<HealthPickup>();
         if (pickupComponent != null)
         {
             float healthToAdd = pickupComponent.healthToRecover;
             Destroy(healthPickup); // Destruir el objeto recuperador de salud
 
-            // Añadir salud al jugador
             currentHealth += healthToAdd;
-
-            // Asegurar que la salud no exceda el máximo
-            currentHealth = Mathf.Min(currentHealth, maxHealth);
+            currentHealth = Mathf.Min(currentHealth, maxHealth); // Asegurar que la salud no exceda el máximo
         }
     }
 
     void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("recuperarHP"))
+        if (other.gameObject.CompareTag("DeadlyObject"))
         {
-            RecuperarSalud(other.gameObject);
+            GameOver();
+        }
+        else if (other.gameObject.CompareTag("AddTime"))
+        {
+            TimePickup timePickup = other.gameObject.GetComponent<TimePickup>();
+            if (timePickup != null)
+            {
+                countdownTimer.AddTime(timePickup.timeToAdd);
+                Destroy(other.gameObject);
+            }
+        }
+        else if (other.gameObject.CompareTag("Objective"))
+        {
+            countdownTimer.CompleteLevel(); // Llamar a CompleteLevel para cambiar de escena
         }
     }
 }
