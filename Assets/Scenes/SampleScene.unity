@@ -2461,7 +2461,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   startTime: 60
   timerText: {fileID: 86471070}
-  nextSceneName: Menu
+  nextSceneName: Level2
   gameOverCanvas: {fileID: 756174822}
 --- !u!4 &1182963061
 Transform:
