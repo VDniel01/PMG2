@@ -11,8 +11,8 @@ public class CountdownTimer : MonoBehaviour
     public Text timerText;
     public string nextSceneName = "Level2"; // Nombre de la próxima escena
     public Canvas gameOverCanvas;
-
     private bool isGameOver = false;
+    private bool isTimerActive = false; // Controla si el temporizador está activo
 
     void Start()
     {
@@ -28,7 +28,7 @@ public class CountdownTimer : MonoBehaviour
 
     void Update()
     {
-        if (!isGameOver)
+        if (isTimerActive && !isGameOver)
         {
             currentTime -= Time.deltaTime;
             UpdateTimerText();
@@ -66,5 +66,10 @@ public class CountdownTimer : MonoBehaviour
     public void CompleteLevel()
     {
         SceneManager.LoadScene(nextSceneName); // Cargar la siguiente escena
+    }
+
+    public void StartTimer()
+    {
+        isTimerActive = true; // Activar el temporizador
     }
 }
