@@ -13,7 +13,6 @@ public class PlayerMovement : MonoBehaviour
     public float currentHealth;
     public Canvas gameOverCanvas;
     public float laserDamagePerSecond = 10f; // Daño por segundo del láser
-    public CountdownTimer countdownTimer; // Referencia al contador regresivo
 
     private Rigidbody rb;
     private Transform cameraTransform;
@@ -53,6 +52,7 @@ public class PlayerMovement : MonoBehaviour
             HandleMovement();
             HandleMouseLook();
             HandleJump();
+            ReduceHealthOverTime();
             CheckHealthPickup();
         }
     }
@@ -105,6 +105,7 @@ public class PlayerMovement : MonoBehaviour
     void CheckGround()
     {
         RaycastHit hit;
+        // Realizar un Raycast hacia abajo para detectar si el jugador está en el suelo
         if (Physics.Raycast(transform.position + Vector3.up * 0.1f, Vector3.down, out hit, 0.3f, groundMask))
         {
             isGrounded = true;
@@ -114,6 +115,14 @@ public class PlayerMovement : MonoBehaviour
         {
             isGrounded = false;
             groundNormal = Vector3.up; // Asignar Vector3.up por defecto cuando no está en el suelo
+        }
+    }
+
+    void ReduceHealthOverTime()
+    {
+        if (isGrounded)
+        {
+            TakeDamage(laserDamagePerSecond * Time.deltaTime); // Aplicar daño por segundo
         }
     }
 
@@ -131,6 +140,10 @@ public class PlayerMovement : MonoBehaviour
     {
         isGameOver = true;
         Time.timeScale = 0; // Pausar el juego
+        // Mostrar Game Over y botón para reiniciar
+        Debug.Log("Game Over!");
+
+        // Activar el Canvas de Game Over
         if (gameOverCanvas != null)
         {
             gameOverCanvas.gameObject.SetActive(true);
@@ -171,7 +184,7 @@ public class PlayerMovement : MonoBehaviour
 
     void CheckHealthPickup()
     {
-        if (Input.GetKeyDown(KeyCode.E))
+        if (Input.GetKeyDown(KeyCode.E)) // Cambia la tecla según necesites
         {
             RaycastHit hit;
             if (Physics.Raycast(transform.position, transform.forward, out hit, 3f))
@@ -186,35 +199,18 @@ public class PlayerMovement : MonoBehaviour
 
     void RecuperarSalud(GameObject healthPickup)
     {
+        // Obtener el componente HealthPickup para obtener la cantidad de salud a recuperar
         HealthPickup pickupComponent = healthPickup.GetComponent<HealthPickup>();
         if (pickupComponent != null)
         {
             float healthToAdd = pickupComponent.healthToRecover;
             Destroy(healthPickup); // Destruir el objeto recuperador de salud
 
+            // Añadir salud al jugador
             currentHealth += healthToAdd;
-            currentHealth = Mathf.Min(currentHealth, maxHealth); // Asegurar que la salud no exceda el máximo
-        }
-    }
 
-    void OnTriggerEnter(Collider other)
-    {
-        if (other.gameObject.CompareTag("DeadlyObject"))
-        {
-            GameOver();
-        }
-        else if (other.gameObject.CompareTag("AddTime"))
-        {
-            TimePickup timePickup = other.gameObject.GetComponent<TimePickup>();
-            if (timePickup != null)
-            {
-                countdownTimer.AddTime(timePickup.timeToAdd);
-                Destroy(other.gameObject);
-            }
-        }
-        else if (other.gameObject.CompareTag("Objective"))
-        {
-            countdownTimer.CompleteLevel(); // Llamar a CompleteLevel para cambiar de escena
+            // Asegurar que la salud no exceda el máximo
+            currentHealth = Mathf.Min(currentHealth, maxHealth);
         }
     }
 }
