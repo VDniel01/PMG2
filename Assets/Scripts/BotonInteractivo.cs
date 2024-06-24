@@ -4,12 +4,12 @@ using UnityEngine;
 
 public class BotonInteractivo : MonoBehaviour
 {
-    public List<GameObject> objetosAActivar;  // Lista de objetos cuyos triggers se activarán/desactivarán
-    public Color colorActivo = Color.green;  // Color cuando el botón está activo
-    private Color colorOriginal;  // Color original del botón
+    public List<GameObject> objetosAActivar;  
+    public Color colorActivo = Color.green; 
+    private Color colorOriginal;  
 
     private Renderer rend;
-    private List<Renderer> objetoRenderers;  // Lista de Renderers de los objetos asociados al botón
+    private List<Renderer> objetoRenderers;  
 
     void Start()
     {
@@ -18,7 +18,6 @@ public class BotonInteractivo : MonoBehaviour
 
         objetoRenderers = new List<Renderer>();
 
-        // Obtener los Renderers de los objetos asociados al botón
         foreach (GameObject objeto in objetosAActivar)
         {
             if (objeto != null)
@@ -34,13 +33,12 @@ public class BotonInteractivo : MonoBehaviour
 
     public void CambiarColorActivo()
     {
-        // Cambiar color del botón
+        // cambia el color del botón
         rend.material.color = colorActivo;
     }
 
     public void ActivarDesactivarTrigger(bool activar)
     {
-        // Activar o desactivar el trigger de los objetos especificados
         foreach (GameObject objeto in objetosAActivar)
         {
             Collider triggerCollider = objeto.GetComponent<Collider>();
@@ -50,7 +48,6 @@ public class BotonInteractivo : MonoBehaviour
             }
         }
 
-        // Cambiar color de los objetos asociados al botón según estén activos o no los triggers
         foreach (Renderer objRend in objetoRenderers)
         {
             if (objRend != null)
@@ -62,10 +59,7 @@ public class BotonInteractivo : MonoBehaviour
 
     public void RestaurarColorOriginal()
     {
-        // Restaurar el color original del botón
         rend.material.color = colorOriginal;
-
-        // Restaurar el color original de los objetos asociados al botón
         foreach (Renderer objRend in objetoRenderers)
         {
             if (objRend != null)

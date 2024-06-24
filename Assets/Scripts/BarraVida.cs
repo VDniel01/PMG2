@@ -8,7 +8,6 @@ public class BarraVida : MonoBehaviour
     public Image barraDeVida;
     public PlayerMovement playerMovement;
 
-    // Update is called once per frame
     void Update()
     {
         if (playerMovement != null)

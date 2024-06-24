@@ -4,5 +4,5 @@ using UnityEngine;
 
 public class HealthPickup : MonoBehaviour
 {
-    public float healthToRecover = 20f; // Cantidad de salud que recupera este pickup
+    public float healthToRecover = 20f; 
 }

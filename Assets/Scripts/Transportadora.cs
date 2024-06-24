@@ -4,14 +4,13 @@ using UnityEngine;
 
 public class Transportadora : MonoBehaviour
 {
-    public float speed = 2.0f; // Velocidad de la cinta transportadora
-    public Vector3 direction = Vector3.forward; // Dirección en la que se moverán los objetos
+    public float speed = 2.0f; 
+    public Vector3 direction = Vector3.forward; 
 
     private List<Rigidbody> objectsOnBelt = new List<Rigidbody>();
 
     void FixedUpdate()
     {
-        // Mover todos los objetos en la cinta transportadora
         foreach (Rigidbody rb in objectsOnBelt)
         {
             Vector3 movement = direction.normalized * speed * Time.fixedDeltaTime;

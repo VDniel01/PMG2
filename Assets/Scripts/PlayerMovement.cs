@@ -12,7 +12,7 @@ public class PlayerMovement : MonoBehaviour
     public float maxHealth = 100f;
     public float currentHealth;
     public Canvas gameOverCanvas;
-    public float laserDamagePerSecond = 10f; // Daño por segundo del láser
+    public float laserDamagePerSecond = 10f; // daño por segundo del láser
 
     private Rigidbody rb;
     private Transform cameraTransform;
@@ -21,8 +21,8 @@ public class PlayerMovement : MonoBehaviour
     private Vector3 groundNormal;
     private bool isGameOver = false;
 
-    private Vector3 initialPosition; // Posición inicial del jugador
-    private Quaternion initialRotation; // Rotación inicial del jugador
+    private Vector3 initialPosition; 
+    private Quaternion initialRotation; 
 
     void Start()
     {
@@ -30,15 +30,14 @@ public class PlayerMovement : MonoBehaviour
         cameraTransform = Camera.main.transform;
         currentHealth = maxHealth;
 
-        // Guardar la posición y rotación inicial del jugador
+        // guardar la posición y rotación inicial del jugador
         initialPosition = transform.position;
         initialRotation = transform.rotation;
 
-        // Lock the cursor
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
 
-        // Desactivar el Canvas de Game Over al iniciar
+
         if (gameOverCanvas != null)
         {
             gameOverCanvas.gameObject.SetActive(false);
@@ -91,9 +90,9 @@ public class PlayerMovement : MonoBehaviour
     {
         if (Input.GetButtonDown("Jump") && isGrounded)
         {
-            rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z); // Reinicia la velocidad vertical para evitar saltos dobles inesperados
+            rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z); 
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
-            isGrounded = false; // Desactiva isGrounded para evitar saltos continuos
+            isGrounded = false; 
         }
     }
 
@@ -105,7 +104,7 @@ public class PlayerMovement : MonoBehaviour
     void CheckGround()
     {
         RaycastHit hit;
-        // Realizar un Raycast hacia abajo para detectar si el jugador está en el suelo
+        
         if (Physics.Raycast(transform.position + Vector3.up * 0.1f, Vector3.down, out hit, 0.3f, groundMask))
         {
             isGrounded = true;
@@ -114,7 +113,7 @@ public class PlayerMovement : MonoBehaviour
         else
         {
             isGrounded = false;
-            groundNormal = Vector3.up; // Asignar Vector3.up por defecto cuando no está en el suelo
+            groundNormal = Vector3.up; 
         }
     }
 
@@ -122,7 +121,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if (isGrounded)
         {
-            TakeDamage(laserDamagePerSecond * Time.deltaTime); // Aplicar daño por segundo
+            TakeDamage(laserDamagePerSecond * Time.deltaTime); // aplica daño por segundo
         }
     }
 
@@ -139,11 +138,7 @@ public class PlayerMovement : MonoBehaviour
     void GameOver()
     {
         isGameOver = true;
-        Time.timeScale = 0; // Pausar el juego
-        // Mostrar Game Over y botón para reiniciar
-        Debug.Log("Game Over!");
-
-        // Activar el Canvas de Game Over
+        Time.timeScale = 0; // pausa el juego y activa el game over
         if (gameOverCanvas != null)
         {
             gameOverCanvas.gameObject.SetActive(true);
@@ -154,28 +149,23 @@ public class PlayerMovement : MonoBehaviour
 
     public void RestartGame()
     {
-        Time.timeScale = 1; // Resumir el juego
+        Time.timeScale = 1; // Reanuda el juego
         ResetPlayer();
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex); // Recargar la escena actual
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
     void ResetPlayer()
     {
-        // Reiniciar la posición y rotación del jugador
         transform.position = initialPosition;
         transform.rotation = initialRotation;
 
-        // Reiniciar la salud
         currentHealth = maxHealth;
 
-        // Reiniciar el estado del juego
         isGameOver = false;
 
-        // Ocultar el cursor
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
 
-        // Desactivar el Canvas de Game Over
         if (gameOverCanvas != null)
         {
             gameOverCanvas.gameObject.SetActive(false);
@@ -184,7 +174,7 @@ public class PlayerMovement : MonoBehaviour
 
     void CheckHealthPickup()
     {
-        if (Input.GetKeyDown(KeyCode.E)) // Cambia la tecla según necesites
+        if (Input.GetKeyDown(KeyCode.E))
         {
             RaycastHit hit;
             if (Physics.Raycast(transform.position, transform.forward, out hit, 3f))
@@ -199,17 +189,12 @@ public class PlayerMovement : MonoBehaviour
 
     void RecuperarSalud(GameObject healthPickup)
     {
-        // Obtener el componente HealthPickup para obtener la cantidad de salud a recuperar
         HealthPickup pickupComponent = healthPickup.GetComponent<HealthPickup>();
         if (pickupComponent != null)
         {
             float healthToAdd = pickupComponent.healthToRecover;
-            Destroy(healthPickup); // Destruir el objeto recuperador de salud
-
-            // Añadir salud al jugador
+            Destroy(healthPickup); 
             currentHealth += healthToAdd;
-
-            // Asegurar que la salud no exceda el máximo
             currentHealth = Mathf.Min(currentHealth, maxHealth);
         }
     }

@@ -6,17 +6,16 @@ using UnityEngine.UI;
 public class AgarrarObjeto : MonoBehaviour
 {
     public GameObject handPoint;
-    public Image miraImage; // Referencia a la imagen de la mira
-    public Color colorEnRango = Color.green; // Color cuando está en rango para agarrar objeto
-    private Color colorOriginal; // Color original de la mira
+    public Image miraImage; 
+    public Color colorEnRango = Color.green; 
+    private Color colorOriginal; 
 
     private GameObject pickedObject = null;
     private Collider pickedObjectCollider = null;
-    private bool isInRange = false; // Indica si está en rango para agarrar objeto
+    private bool isInRange = false; 
 
     void Start()
     {
-        // Guardar el color original de la mira
         if (miraImage != null)
         {
             colorOriginal = miraImage.color;
@@ -27,7 +26,7 @@ public class AgarrarObjeto : MonoBehaviour
     {
         if (pickedObject != null)
         {
-            if (Input.GetMouseButton(0)) // Botón izquierdo del mouse
+            if (Input.GetMouseButton(0)) 
             {
                 pickedObject.GetComponent<Rigidbody>().useGravity = false;
                 pickedObject.GetComponent<Rigidbody>().isKinematic = true;
@@ -47,8 +46,6 @@ public class AgarrarObjeto : MonoBehaviour
                 pickedObjectCollider = null;
             }
         }
-
-        // Cambiar color de la mira cuando está en rango
         if (miraImage != null)
         {
             if (isInRange)
@@ -66,10 +63,10 @@ public class AgarrarObjeto : MonoBehaviour
     {
         if (other.gameObject.CompareTag("Mirror"))
         {
-            // Cambiar el estado de rango
+            
             isInRange = true;
 
-            if (Input.GetMouseButton(0) && pickedObject == null) // Botón izquierdo del mouse
+            if (Input.GetMouseButton(0) && pickedObject == null) 
             {
                 pickedObject = other.gameObject;
                 pickedObjectCollider = pickedObject.GetComponent<Collider>();
@@ -85,7 +82,7 @@ public class AgarrarObjeto : MonoBehaviour
     {
         if (other.gameObject.CompareTag("Mirror"))
         {
-            // Cambiar el estado de rango
+          
             isInRange = false;
         }
     }

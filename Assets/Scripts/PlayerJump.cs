@@ -25,14 +25,13 @@ public class PlayerJump : MonoBehaviour
 
     void Jump()
     {
-        rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z); // Reinicia la velocidad vertical para evitar saltos dobles inesperados
+        rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z); 
         rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
-        isGrounded = false; // Desactiva isGrounded para evitar saltos continuos
+        isGrounded = false; 
     }
 
     void OnCollisionEnter(Collision collision)
     {
-        // Si el jugador colisiona con algo que está en la capa del suelo, activa isGrounded
         if (collision.gameObject.layer == LayerMask.NameToLayer("Ground"))
         {
             isGrounded = true;
@@ -41,7 +40,6 @@ public class PlayerJump : MonoBehaviour
 
     void OnCollisionExit(Collision collision)
     {
-        // Si el jugador deja de colisionar con algo que está en la capa del suelo, desactiva isGrounded
         if (collision.gameObject.layer == LayerMask.NameToLayer("Ground"))
         {
             isGrounded = false;

@@ -11,7 +11,7 @@ public class DeadlyObject : MonoBehaviour
             PlayerMovement playerMovement = other.GetComponent<PlayerMovement>();
             if (playerMovement != null)
             {
-                playerMovement.TakeDamage(playerMovement.currentHealth); // Aplicar suficiente daño para matar al jugador
+                playerMovement.TakeDamage(playerMovement.currentHealth); 
             }
         }
     }

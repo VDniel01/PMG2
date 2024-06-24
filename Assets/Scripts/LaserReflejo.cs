@@ -7,12 +7,12 @@ public class LaserReflejo : MonoBehaviour
     int maxBounces = 5;
     private LineRenderer lr;
     [SerializeField]
-    private Transform startPoint;  // Punto de inicio del láser
+    private Transform startPoint;  // punto de inicio del láser
     [SerializeField]
-    private bool reflectOnlyMirror;  // Indica si solo debe reflejar en objetos con el tag "Mirror"
+    private bool reflectOnlyMirror;  // Indica si debe reflejar en objetos con el tag Mirror
     [SerializeField]
-    private Color laserColor = Color.red;  // Color del láser, por defecto rojo
-    public float damagePerSecond = 10f; // Daño por segundo del láser
+    private Color laserColor = Color.red;  
+    public float damagePerSecond = 10f; // daño por segundo del laser
 
     private List<GameObject> botonesObjetos;
     private List<BotonInteractivo> botonesScripts;
@@ -22,14 +22,13 @@ public class LaserReflejo : MonoBehaviour
     void Start()
     {
         lr = GetComponent<LineRenderer>();
-        lr.positionCount = maxBounces + 1;  // Configura el número de posiciones del LineRenderer
+        lr.positionCount = maxBounces + 1;  
         lr.SetPosition(0, startPoint.position);
 
-        // Cambiar el color del material del LineRenderer
+ 
         lr.material = new Material(Shader.Find("Unlit/Color"));
         lr.material.color = laserColor;
 
-        // Buscar todos los objetos con el tag "boton" y obtener sus scripts BotonInteractivo
         botonesObjetos = new List<GameObject>(GameObject.FindGameObjectsWithTag("boton"));
         botonesScripts = new List<BotonInteractivo>();
         tocandoBotones = new List<bool>();
@@ -44,16 +43,13 @@ public class LaserReflejo : MonoBehaviour
             }
         }
 
-        // Obtener referencia al script PlayerMovement
         playerMovement = FindObjectOfType<PlayerMovement>();
     }
 
     void Update()
     {
-        // Castear el láser cada frame
         CastLaser(startPoint.position, -startPoint.forward);
 
-        // Restaurar color original de los botones si ya no están tocando
         for (int i = 0; i < tocandoBotones.Count; i++)
         {
             if (!tocandoBotones[i] && botonesScripts[i] != null)
@@ -61,13 +57,13 @@ public class LaserReflejo : MonoBehaviour
                 botonesScripts[i].RestaurarColorOriginal();
                 botonesScripts[i].ActivarDesactivarTrigger(false);
             }
-            tocandoBotones[i] = false;  // Reiniciar la variable tocandoBoton al inicio de cada frame
+            tocandoBotones[i] = false;
         }
     }
 
     void CastLaser(Vector3 position, Vector3 direction)
     {
-        lr.positionCount = 1;  // Reinicia el número de posiciones a 1 para empezar de nuevo
+        lr.positionCount = 1; 
         lr.SetPosition(0, startPoint.position);
 
         for (int i = 0; i < maxBounces; i++)
@@ -79,20 +75,19 @@ public class LaserReflejo : MonoBehaviour
             {
                 position = hit.point;
 
-                // Verificar si el láser toca algún objeto con el tag "boton"
+                // verifica si el laser toca algun objeto con el tag boton
                 for (int j = 0; j < botonesObjetos.Count; j++)
                 {
                     if (hit.transform == botonesObjetos[j].transform && botonesScripts[j] != null)
                     {
                         tocandoBotones[j] = true;
 
-                        // Cambiar color del botón y activar el trigger del objeto asociado
                         botonesScripts[j].CambiarColorActivo();
                         botonesScripts[j].ActivarDesactivarTrigger(true);
                     }
                 }
 
-                // Verificar si el láser toca al jugador para aplicarle daño
+                // verifica si el laser toca al jugador para hacerle daño
                 if (hit.transform.CompareTag("Player") && playerMovement != null)
                 {
                     playerMovement.TakeDamage(damagePerSecond * Time.deltaTime);
@@ -101,12 +96,11 @@ public class LaserReflejo : MonoBehaviour
                 if (hit.transform.CompareTag("Mirror") || !reflectOnlyMirror)
                 {
                     direction = Vector3.Reflect(direction, hit.normal);
-                    lr.positionCount = i + 2;  // Incrementa el número de posiciones según los rebotes
+                    lr.positionCount = i + 2;
                     lr.SetPosition(i + 1, hit.point);
                 }
                 else
                 {
-                    // Si no tiene el tag "Mirror" y se requiere reflejar solo en "Mirror"
                     lr.positionCount = i + 2;
                     lr.SetPosition(i + 1, hit.point);
                     break;
@@ -114,7 +108,6 @@ public class LaserReflejo : MonoBehaviour
             }
             else
             {
-                // Si no golpea nada, termina el bucle y coloca el último punto
                 lr.positionCount = i + 2;
                 lr.SetPosition(i + 1, position + direction * 300);
                 break;
