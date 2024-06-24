@@ -6,20 +6,20 @@ using UnityEngine.SceneManagement;
 
 public class CountdownTimer : MonoBehaviour
 {
-    public float startTime = 60f; // Tiempo inicial en segundos
+    public float startTime = 60f; // tiempo inicial
     private float currentTime;
     public Text timerText;
-    public string nextSceneName = "Level2"; // Nombre de la próxima escena
+    public string nextSceneName = "Level2"; 
     public Canvas gameOverCanvas;
     private bool isGameOver = false;
-    private bool isTimerActive = false; // Controla si el temporizador está activo
+    private bool isTimerActive = false; 
 
     void Start()
     {
         currentTime = startTime;
         UpdateTimerText();
 
-        // Desactivar el Canvas de Game Over al iniciar
+        
         if (gameOverCanvas != null)
         {
             gameOverCanvas.gameObject.SetActive(false);
@@ -43,13 +43,13 @@ public class CountdownTimer : MonoBehaviour
 
     void UpdateTimerText()
     {
-        timerText.text = currentTime.ToString("F2"); // Formatear con 2 decimales
+        timerText.text = currentTime.ToString("F2"); 
     }
 
     void GameOver()
     {
         isGameOver = true;
-        Time.timeScale = 0; // Pausar el juego
+        Time.timeScale = 0; // pausar el juego
         if (gameOverCanvas != null)
         {
             gameOverCanvas.gameObject.SetActive(true);
@@ -61,15 +61,16 @@ public class CountdownTimer : MonoBehaviour
     public void AddTime(float amount)
     {
         currentTime += amount;
+        UpdateTimerText(); 
     }
 
     public void CompleteLevel()
     {
-        SceneManager.LoadScene(nextSceneName); // Cargar la siguiente escena
+        SceneManager.LoadScene(nextSceneName); // cargar la siguiente escena
     }
 
     public void StartTimer()
     {
-        isTimerActive = true; // Activar el temporizador
+        isTimerActive = true; // activa el temporizador
     }
 }

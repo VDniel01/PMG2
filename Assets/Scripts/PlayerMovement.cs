@@ -21,8 +21,8 @@ public class PlayerMovement : MonoBehaviour
     private Vector3 groundNormal;
     private bool isGameOver = false;
 
-    private Vector3 initialPosition; 
-    private Quaternion initialRotation; 
+    private Vector3 initialPosition;
+    private Quaternion initialRotation;
 
     void Start()
     {
@@ -36,7 +36,6 @@ public class PlayerMovement : MonoBehaviour
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
-
 
         if (gameOverCanvas != null)
         {
@@ -52,7 +51,6 @@ public class PlayerMovement : MonoBehaviour
             HandleMouseLook();
             HandleJump();
             ReduceHealthOverTime();
-            CheckHealthPickup();
         }
     }
 
@@ -90,9 +88,9 @@ public class PlayerMovement : MonoBehaviour
     {
         if (Input.GetButtonDown("Jump") && isGrounded)
         {
-            rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z); 
+            rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
-            isGrounded = false; 
+            isGrounded = false;
         }
     }
 
@@ -104,7 +102,7 @@ public class PlayerMovement : MonoBehaviour
     void CheckGround()
     {
         RaycastHit hit;
-        
+
         if (Physics.Raycast(transform.position + Vector3.up * 0.1f, Vector3.down, out hit, 0.3f, groundMask))
         {
             isGrounded = true;
@@ -113,7 +111,7 @@ public class PlayerMovement : MonoBehaviour
         else
         {
             isGrounded = false;
-            groundNormal = Vector3.up; 
+            groundNormal = Vector3.up;
         }
     }
 
@@ -133,6 +131,12 @@ public class PlayerMovement : MonoBehaviour
             currentHealth = 0;
             GameOver();
         }
+    }
+
+    public void RecoverHealth(float amount)
+    {
+        currentHealth += amount;
+        currentHealth = Mathf.Min(currentHealth, maxHealth);
     }
 
     void GameOver()
@@ -169,33 +173,6 @@ public class PlayerMovement : MonoBehaviour
         if (gameOverCanvas != null)
         {
             gameOverCanvas.gameObject.SetActive(false);
-        }
-    }
-
-    void CheckHealthPickup()
-    {
-        if (Input.GetKeyDown(KeyCode.E))
-        {
-            RaycastHit hit;
-            if (Physics.Raycast(transform.position, transform.forward, out hit, 3f))
-            {
-                if (hit.collider.CompareTag("recuperarHP"))
-                {
-                    RecuperarSalud(hit.collider.gameObject);
-                }
-            }
-        }
-    }
-
-    void RecuperarSalud(GameObject healthPickup)
-    {
-        HealthPickup pickupComponent = healthPickup.GetComponent<HealthPickup>();
-        if (pickupComponent != null)
-        {
-            float healthToAdd = pickupComponent.healthToRecover;
-            Destroy(healthPickup); 
-            currentHealth += healthToAdd;
-            currentHealth = Mathf.Min(currentHealth, maxHealth);
         }
     }
 }
