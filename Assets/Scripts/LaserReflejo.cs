@@ -7,31 +7,31 @@ public class LaserReflejo : MonoBehaviour
     int maxBounces = 5;
     private LineRenderer lr;
     [SerializeField]
-    private Transform startPoint;  // punto de inicio del láser
+    private Transform startPoint;
     [SerializeField]
-    private bool reflectOnlyMirror;  // Indica si debe reflejar en objetos con el tag Mirror
+    private bool reflectOnlyMirror;
     [SerializeField]
-    private Color laserColor = Color.red;  
-    public float damagePerSecond = 10f; // daño por segundo del laser
+    private Color laserColor = Color.red;
+    public float damagePerSecond = 10f;
 
-    private List<GameObject> botonesObjetos;
     private List<BotonInteractivo> botonesScripts;
-    private List<bool> tocandoBotones;
     private PlayerMovement playerMovement;
+
+    // Listas para rastrear los botones tocados
+    private List<BotonInteractivo> botonesTocados = new List<BotonInteractivo>();
+    private List<BotonInteractivo> botonesTocadosPrev = new List<BotonInteractivo>();
 
     void Start()
     {
         lr = GetComponent<LineRenderer>();
-        lr.positionCount = maxBounces + 1;  
+        lr.positionCount = maxBounces + 1;
         lr.SetPosition(0, startPoint.position);
 
- 
         lr.material = new Material(Shader.Find("Unlit/Color"));
         lr.material.color = laserColor;
 
-        botonesObjetos = new List<GameObject>(GameObject.FindGameObjectsWithTag("boton"));
+        GameObject[] botonesObjetos = GameObject.FindGameObjectsWithTag("boton");
         botonesScripts = new List<BotonInteractivo>();
-        tocandoBotones = new List<bool>();
 
         foreach (GameObject boton in botonesObjetos)
         {
@@ -39,7 +39,6 @@ public class LaserReflejo : MonoBehaviour
             if (botonScript != null)
             {
                 botonesScripts.Add(botonScript);
-                tocandoBotones.Add(false);
             }
         }
 
@@ -48,22 +47,24 @@ public class LaserReflejo : MonoBehaviour
 
     void Update()
     {
+        botonesTocadosPrev = new List<BotonInteractivo>(botonesTocados);
+        botonesTocados.Clear();
+
         CastLaser(startPoint.position, -startPoint.forward);
 
-        for (int i = 0; i < tocandoBotones.Count; i++)
+        foreach (BotonInteractivo boton in botonesTocadosPrev)
         {
-            if (!tocandoBotones[i] && botonesScripts[i] != null)
+            if (!botonesTocados.Contains(boton))
             {
-                botonesScripts[i].RestaurarColorOriginal();
-                botonesScripts[i].ActivarDesactivarTrigger(false);
+                boton.RestaurarColorOriginal();
+                boton.ActivarDesactivarTrigger(false);
             }
-            tocandoBotones[i] = false;
         }
     }
 
     void CastLaser(Vector3 position, Vector3 direction)
     {
-        lr.positionCount = 1; 
+        lr.positionCount = 1;
         lr.SetPosition(0, startPoint.position);
 
         for (int i = 0; i < maxBounces; i++)
@@ -75,19 +76,17 @@ public class LaserReflejo : MonoBehaviour
             {
                 position = hit.point;
 
-                // verifica si el laser toca algun objeto con el tag boton
-                for (int j = 0; j < botonesObjetos.Count; j++)
+                if (hit.transform.CompareTag("boton"))
                 {
-                    if (hit.transform == botonesObjetos[j].transform && botonesScripts[j] != null)
+                    BotonInteractivo botonScript = hit.transform.GetComponent<BotonInteractivo>();
+                    if (botonScript != null)
                     {
-                        tocandoBotones[j] = true;
-
-                        botonesScripts[j].CambiarColorActivo();
-                        botonesScripts[j].ActivarDesactivarTrigger(true);
+                        botonScript.CambiarColorActivo();
+                        botonScript.ActivarDesactivarTrigger(true);
+                        botonesTocados.Add(botonScript);
                     }
                 }
 
-                // verifica si el laser toca al jugador para hacerle daño
                 if (hit.transform.CompareTag("Player") && playerMovement != null)
                 {
                     playerMovement.TakeDamage(damagePerSecond * Time.deltaTime);

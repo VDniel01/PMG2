@@ -4,12 +4,12 @@ using UnityEngine;
 
 public class BotonInteractivo : MonoBehaviour
 {
-    public List<GameObject> objetosAActivar;  
-    public Color colorActivo = Color.green; 
-    private Color colorOriginal;  
+    public List<GameObject> objetosAActivar;
+    public Color colorActivo = Color.green;
+    private Color colorOriginal;
 
     private Renderer rend;
-    private List<Renderer> objetoRenderers;  
+    private List<Renderer> objetoRenderers;
 
     void Start()
     {
@@ -33,7 +33,6 @@ public class BotonInteractivo : MonoBehaviour
 
     public void CambiarColorActivo()
     {
-        // cambia el color del botón
         rend.material.color = colorActivo;
     }
 
