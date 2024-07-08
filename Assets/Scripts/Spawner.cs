@@ -4,15 +4,35 @@ using UnityEngine;
 
 public class Spawner : MonoBehaviour
 {
-    // Start is called before the first frame update
+    public GameObject prefabToSpawn;  
+    private GameObject currentPrefab; 
+    public float respawnTime = 5f; 
+
+    private bool isSpawning = false; 
+
     void Start()
     {
-        
+        SpawnPrefab();
     }
 
-    // Update is called once per frame
     void Update()
     {
-        
+        if (currentPrefab == null && !isSpawning)
+        {
+            StartCoroutine(RespawnPrefab());
+        }
+    }
+
+    void SpawnPrefab()
+    {
+        currentPrefab = Instantiate(prefabToSpawn, transform.position, transform.rotation);
+    }
+
+    IEnumerator RespawnPrefab()
+    {
+        isSpawning = true;
+        yield return new WaitForSeconds(respawnTime);
+        SpawnPrefab();
+        isSpawning = false;
     }
 }

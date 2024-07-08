@@ -14,7 +14,7 @@ public class HealthPickup : MonoBehaviour
             if (playerMovement != null)
             {
                 playerMovement.RecoverHealth(healthToRecover);
-                Destroy(gameObject); // Destruir el objeto después de recogerlo
+                Destroy(gameObject); // Destruir el objeto
             }
         }
     }

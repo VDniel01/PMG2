@@ -32,7 +32,7 @@ public class Transportadora : MonoBehaviour
         Rigidbody rb = collision.collider.GetComponent<Rigidbody>();
         if (rb != null && objectsOnBelt.Contains(rb))
         {
-            rb.velocity = Vector3.zero; // Detener el objeto al salir de la transportadora
+            rb.velocity = Vector3.zero; // Detener el objeto
             objectsOnBelt.Remove(rb);
         }
     }
